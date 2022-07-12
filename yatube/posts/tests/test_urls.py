@@ -72,7 +72,8 @@ class PostURLTests(TestCase):
             "/posts/116/": "posts/post_detail.html",
             "/posts/116/edit/": "posts/create_post.html",
             "/create/": "posts/create_post.html",
-            "/unexisting_page/": "core/404.html"
+            "/unexisting_page/": "core/404.html",
+            '/follow/': 'posts/follow.html',
         }
         for url, template in template_url_names.items():
             with self.subTest(url=url):

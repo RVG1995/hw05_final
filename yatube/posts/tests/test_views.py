@@ -257,12 +257,35 @@ class FollowTests(TestCase):
     def test_subscription_feed(self):
         Follow.objects.create(user=self.user_follower,
                               author=self.user_following)
-        response = self.client_auth_follower.get('/follow/')
+        response = self.client_auth_follower.get(reverse(
+            'posts:follow_index'))
         post_text_0 = response.context["page_obj"][0].text
         self.assertEqual(post_text_0, self.post.text)
-        response = self.client_auth_following.get('/follow/')
+        response = self.client_auth_following.get(reverse(
+            'posts:follow_index'))
         self.assertNotContains(response,
                                self.post.text)
+
+    def test_authenticated_user_can_not_follow_himself(self):
+        self.client_auth_follower.get(
+            reverse("posts:profile_follow",
+                    kwargs={
+                        'username': self.user_follower.username
+                    }))
+        self.assertFalse(Follow.objects.filter(
+            user=self.user_follower,
+            author=self.user_follower).exists())
+
+    def test_authenticated_user_can_not_follow_another_user_twice(self):
+        self.client_auth_follower.get(
+            reverse("posts:profile_follow",
+                    kwargs={'username': self.user_following.username}))
+        self.client_auth_follower.get(
+            reverse("posts:profile_follow",
+                    kwargs={'username': self.user_following.username}))
+        self.assertEqual(Follow.objects.filter(
+            user=self.user_follower,
+            author=self.user_following).count(), 1)
 
 
 class PaginatorViewsTest(TestCase):
