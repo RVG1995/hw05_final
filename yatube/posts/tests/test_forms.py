@@ -2,6 +2,7 @@ import shutil
 import tempfile
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -62,6 +63,7 @@ class PostViewsTests(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        cache.clear()
 
     def test_create_post_base_update(self):
         post_count = Post.objects.count()
@@ -129,7 +131,7 @@ class PostViewsTests(TestCase):
             ).exists()
         )
 
-    def test_update_post_at_desired_location(self):
+    def test_update_post_unauthenticated_user(self):
         form_data = {
             "text": "Пост от неавторизованного пользователя",
             "group": self.group.id
@@ -166,7 +168,7 @@ class PostViewsTests(TestCase):
             ).exists()
         )
 
-    def test_comments_at_desired_location(self):
+    def test_comments_unauthenticated_user(self):
         form_data = {
             "text": "Комментарий от неавторизованного пользователя",
         }

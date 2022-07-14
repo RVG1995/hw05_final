@@ -65,6 +65,9 @@ class Comment(CreatedModel):
     )
     text = models.TextField()
 
+    class Meta:
+        ordering = ("-created",)
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -77,3 +80,13 @@ class Follow(models.Model):
         related_name='following',
         on_delete=models.CASCADE,
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'],
+                name="user can not follow himself")
+        ]
+
+    def __str__(self):
+        return self.user, self.author

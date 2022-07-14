@@ -8,7 +8,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.core.cache import cache
 
-from ..models import Comment, Group, Post, User, Follow
+from ..models import Comment, Follow, Group, Post, User
 
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
 
@@ -58,6 +58,7 @@ class PostViewsTests(TestCase):
         self.guest_client = Client()
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
+        cache.clear()
 
     def test_pages_uses_correct_template(self):
         template_page_names = {
@@ -78,7 +79,6 @@ class PostViewsTests(TestCase):
         }
         for reverse_name, template in template_page_names.items():
             with self.subTest(template=template):
-                cache.clear()
                 response = self.authorized_client.get(reverse_name)
                 self.assertTemplateUsed(response, template)
 
@@ -184,10 +184,6 @@ class PostViewsTests(TestCase):
 
         for url in urls:
             with self.subTest(url=url):
-                cache.clear()
-                # client = Client()
-                # client.force_login(user=self.user)
-                # response = client.get(url)
                 response = self.authorized_client.get(url)
                 page_obj = response.context.get("page_obj")
                 self.assertIn(created_post, page_obj)
@@ -228,6 +224,7 @@ class FollowTests(TestCase):
         self.client_auth_following = Client()
         self.client_auth_follower.force_login(self.user_follower)
         self.client_auth_following.force_login(self.user_following)
+        cache.clear()
 
     def test_authenticated_user_can_follow_another_user(self):
         response = self.client_auth_follower.get(reverse(
@@ -306,8 +303,6 @@ class PaginatorViewsTest(TestCase):
     def setUp(self):
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
-
-    def tearDown(self):
         cache.clear()
 
     def test_index_first_page_contains_ten_records(self):

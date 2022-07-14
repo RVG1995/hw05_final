@@ -23,10 +23,10 @@ class PostURLTests(TestCase):
         )
 
     def setUp(self):
-        cache.clear()
         self.guest_client = Client()
         self.authorizied_client = Client()
         self.authorizied_client.force_login(self.user)
+        cache.clear()
 
     def test_index_url_exists_at_desired_location(self):
         response = self.guest_client.get("/")
